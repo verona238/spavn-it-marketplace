@@ -1,0 +1,8 @@
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\dto\EmailEvent.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\config\OpenAPIConfig.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\service\EmailService.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\dto\EmailType.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\NotificationServiceApplication.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\config\RabbitMQConfig.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\controller\HealthController.java
+C:\Users\nazarovskaya.v\Documents\project\spavnit-marketplace\backend\notification-service\src\main\java\com\spavnit\notification\service\EmailEventListener.java
