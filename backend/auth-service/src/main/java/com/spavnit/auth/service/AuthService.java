@@ -31,6 +31,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
+    private final UserEventPublisher userEventPublisher;
 
     @Value("${two-factor.code-expiration}")
     private int codeExpirationSeconds;
@@ -64,8 +65,7 @@ public class AuthService {
         User savedUser = userRepository.save(user);
         log.info("Пользователь успешно зарегистрирован: {}", savedUser.getEmail());
 
-        // Отправляем событие в User Service для создания профиля
-        publishUserCreatedEvent(savedUser);
+        userEventPublisher.publishUserCreated(savedUser);
 
         // Отправляем приветственное письмо
         sendWelcomeEmail(savedUser.getEmail());
@@ -102,11 +102,11 @@ public class AuthService {
             throw new AuthException("Неверный email или пароль");
         }
 
-        // Проверяем, активен ли пользователь
+        // КРИТИЧЕСКАЯ ПРОВЕРКА: Деактивированные пользователи не могут войти
         if (!user.isActive()) {
-            throw new AuthException("Аккаунт деактивирован");
+            log.warn("Попытка входа деактивированного пользователя: {}", user.getEmail());
+            throw new AuthException("Ваш аккаунт был деактивирован. Обратитесь к администратору.");
         }
-
 
         // Если пользователь - администратор, требуем 2FA
         if (user.getRole() == Role.ADMIN) {
@@ -155,6 +155,12 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthException("Пользователь не найден"));
+
+        // ПРОВЕРКА: Деактивированные пользователи не могут пройти 2FA
+        if (!user.isActive()) {
+            log.warn("Попытка 2FA деактивированного пользователя: {}", user.getEmail());
+            throw new AuthException("Ваш аккаунт был деактивирован. Обратитесь к администратору.");
+        }
 
         // Проверяем, что код был отправлен
         if (user.getTwoFactorCode() == null || user.getTwoFactorExpiry() == null) {
@@ -248,24 +254,5 @@ public class AuthService {
         );
 
         log.info("Приветственное письмо отправлено на: {}", email);
-    }
-
-    /**
-     * Публикация события создания пользователя
-     */
-    private void publishUserCreatedEvent(User user) {
-        UserCreatedEvent event = UserCreatedEvent.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .build();
-
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.USER_EVENTS_EXCHANGE,
-                RabbitMQConfig.USER_CREATED_KEY,
-                event
-        );
-
-        log.info("Событие создания пользователя опубликовано для: {}", user.getEmail());
     }
 }

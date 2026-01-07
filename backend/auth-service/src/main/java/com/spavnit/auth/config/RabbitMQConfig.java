@@ -94,4 +94,46 @@ public class RabbitMQConfig {
         template.setMessageConverter(messageConverter());
         return template;
     }
+
+    // Для синхронизации ролей
+    public static final String AUTH_EVENTS_EXCHANGE = "auth.events";
+    public static final String ROLE_CHANGED_QUEUE = "role.changed.queue";
+    public static final String ROLE_CHANGED_KEY = "role.changed";
+
+    @Bean
+    public TopicExchange authEventsExchange() {
+        return new TopicExchange(AUTH_EVENTS_EXCHANGE);
+    }
+
+    @Bean
+    public Queue roleChangedQueue() {
+        return new Queue(ROLE_CHANGED_QUEUE, true);
+    }
+
+    @Bean
+    public Binding roleChangedBinding() {
+        return BindingBuilder
+                .bind(roleChangedQueue())
+                .to(authEventsExchange())
+                .with(ROLE_CHANGED_KEY);
+    }
+    // Дополнительные события для синхронизации
+    public static final String USER_DELETED_KEY = "user.deleted";
+
+    // Для получения событий обновления из User Service
+    public static final String USER_UPDATED_AUTH_QUEUE = "user.updated.auth.queue";
+    public static final String USER_UPDATED_KEY = "user.updated";
+
+    @Bean
+    public Queue userUpdatedAuthQueue() {
+        return new Queue(USER_UPDATED_AUTH_QUEUE, true);
+    }
+
+    @Bean
+    public Binding userUpdatedAuthBinding() {
+        return BindingBuilder
+                .bind(userUpdatedAuthQueue())
+                .to(userEventsExchange())
+                .with(USER_UPDATED_KEY);
+    }
 }
