@@ -42,9 +42,3 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
-
-# Логирование
-logging:
-  level:
-    com.spavnit.user: DEBUG
-    org.springframework.security: DEBUG

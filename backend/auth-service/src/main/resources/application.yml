@@ -62,9 +62,3 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
-
-# Логирование
-logging:
-  level:
-    com.spavnit.auth: DEBUG
-    org.springframework.security: DEBUG

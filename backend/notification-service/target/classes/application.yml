@@ -40,9 +40,3 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
-
-# Логирование
-logging:
-  level:
-    com.spavnit.notification: DEBUG
-    org.springframework.amqp: DEBUG

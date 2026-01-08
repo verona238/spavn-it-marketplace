@@ -1,0 +1,37 @@
+# Конфигурация Catalog Service
+server:
+  port: 8085
+  servlet:
+    context-path: /api/catalog
+
+spring:
+  application:
+    name: catalog-service
+
+  # Настройки подключения к базе данных PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5438/catalog_db
+    username: postgres
+    password: postgres123
+    driver-class-name: org.postgresql.Driver
+
+  # Настройки JPA/Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Настройки JWT
+jwt:
+  secret: your-super-secret-key-change-this-in-production-min-256-bits-long
+
+# Настройки Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

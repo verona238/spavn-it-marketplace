@@ -1,0 +1,48 @@
+# Конфигурация Balance Service
+server:
+  port: 8084
+  servlet:
+    context-path: /api/balance
+
+spring:
+  application:
+    name: balance-service
+
+  # Настройки подключения к базе данных PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5437/balance_db
+    username: postgres
+    password: postgres123
+    driver-class-name: org.postgresql.Driver
+
+  # Настройки JPA/Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Настройки RabbitMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123
+
+# Настройки JWT
+jwt:
+  secret: your-super-secret-key-change-this-in-production-min-256-bits-long
+
+# Настройки баланса
+balance:
+  initial-amount: 100.00  # Начальный баланс для новых пользователей (100 монет)
+
+# Настройки Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

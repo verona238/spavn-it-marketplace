@@ -51,7 +51,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
     ports:
-      - "5434:5432"
+      - "5438:5432"
     volumes:
       - postgres-catalog-data:/var/lib/postgresql/data
     networks:
@@ -71,7 +71,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
     ports:
-      - "5435:5432"
+      - "5439:5432"
     volumes:
       - postgres-cart-data:/var/lib/postgresql/data
     networks:
@@ -91,7 +91,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
     ports:
-      - "5436:5432"
+      - "5440:5432"
     volumes:
       - postgres-order-data:/var/lib/postgresql/data
     networks:
@@ -152,6 +152,33 @@ services:
     networks:
       - spavnit-network
 
+  # Loki - система сбора логов
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: spavnit-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - spavnit-network
+
+  # Grafana - веб-интерфейс для просмотра логов
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: spavnit-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - spavnit-network
+    depends_on:
+      - loki
+
 # Volumes для хранения данных (чтобы данные не терялись при перезапуске)
 volumes:
   postgres-auth-data:
@@ -161,6 +188,7 @@ volumes:
   postgres-order-data:
   postgres-balance-data:
   rabbitmq-data:
+  grafana-data:
 
 # Сеть для связи между контейнерами
 networks:
