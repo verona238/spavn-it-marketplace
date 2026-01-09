@@ -1,22 +1,19 @@
 package com.spavnit.order.client;
 
 import com.spavnit.order.dto.DebitRequest;
+import com.spavnit.order.dto.RefundRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
-/**
- * REST клиент для взаимодействия с Balance Service
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -31,7 +28,7 @@ public class BalanceClient {
      * Списать средства с баланса пользователя
      */
     public void debitBalance(String token, BigDecimal amount, Long orderId) {
-        log.info("Списание {} монет с баланса для заказа {}", amount, orderId);
+        log.info("Списание {} с баланса для заказа {}", amount, orderId);
 
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -53,9 +50,10 @@ public class BalanceClient {
                     Void.class
             );
 
-            log.info("Средства успешно списаны для заказа {}", orderId);
+            log.info("Средства списаны для заказа {}", orderId);
+
         } catch (HttpClientErrorException e) {
-            log.error("Ошибка при списании средств для заказа {}: {}", orderId, e.getMessage());
+            log.error("Ошибка при списании средств для заказа {}: {}", orderId, e.getResponseBodyAsString());
             throw new RuntimeException(e.getResponseBodyAsString());
         } catch (Exception e) {
             log.error("Ошибка при списании средств: {}", e.getMessage());
@@ -64,25 +62,27 @@ public class BalanceClient {
     }
 
     /**
-     * Вернуть средства на баланс (при отмене заказа)
+     * Вернуть средства на баланс (при отмене оплаченного заказа)
      */
     public void refundBalance(Long userId, BigDecimal amount, Long orderId) {
-        log.info("Возврат {} монет на баланс пользователя {} для заказа {}", amount, userId, orderId);
+        log.info("Возврат {} на баланс пользователя {} для заказа {}", amount, userId, orderId);
 
         try {
             String url = balanceUrl + "/" + userId + "/refund";
 
-            DebitRequest request = DebitRequest.builder()
+            RefundRequest request = RefundRequest.builder()
                     .amount(amount)
-                    .description("Возврат средств за отмененный заказ #" + orderId)
+                    .description("Возврат средств за заказ #" + orderId)
                     .orderId(orderId)
                     .build();
 
             restTemplate.postForObject(url, request, Void.class);
 
             log.info("Средства возвращены на баланс для заказа {}", orderId);
+
         } catch (Exception e) {
             log.error("Ошибка при возврате средств для заказа {}: {}", orderId, e.getMessage());
+            throw new RuntimeException("Не удалось вернуть средства на баланс");
         }
     }
 }

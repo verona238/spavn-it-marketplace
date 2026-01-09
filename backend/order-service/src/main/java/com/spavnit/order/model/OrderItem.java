@@ -5,12 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-/**
- * Модель товара в заказе
- */
 @Entity
 @Table(name = "order_items")
 @Data
@@ -39,9 +38,17 @@ public class OrderItem {
     @Column(name = "product_category")
     private String productCategory;
 
-    @Column(name = "download_link", length = 500)
-    private String downloadLink; // Ссылка на скачивание товара
+    @Column(name = "product_image_url")
+    private String productImageUrl;
 
     @Column(nullable = false)
-    private Integer quantity;
+    @Builder.Default
+    private Integer quantity = 1;
+
+    @Column(name = "download_link", length = 500)
+    private String downloadLink;
+
+    @CreationTimestamp
+    @Column(name = "added_at", updatable = false)
+    private LocalDateTime addedAt;
 }

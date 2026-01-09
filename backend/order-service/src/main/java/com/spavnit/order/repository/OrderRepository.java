@@ -7,15 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * Repository для работы с заказами
- */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    List<Order> findByEmailOrderByCreatedAtDesc(String email);
-
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    List<Order> findByEmailOrderByCreatedAtDesc(String email);
 
     List<Order> findByStatus(OrderStatus status);
 

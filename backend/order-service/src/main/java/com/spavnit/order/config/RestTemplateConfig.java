@@ -4,9 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * Конфигурация RestTemplate для HTTP запросов
- */
 @Configuration
 public class RestTemplateConfig {
 

@@ -6,10 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-/**
- * DTO для товара в заказе
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,6 +18,8 @@ public class OrderItemResponse {
     private String productName;
     private BigDecimal productPrice;
     private String productCategory;
+    private String productImageUrl;
     private Integer quantity;
     private String downloadLink;
+    private LocalDateTime addedAt;
 }

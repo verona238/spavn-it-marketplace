@@ -9,9 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * DTO для ответа с информацией о заказе
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,14 +17,15 @@ public class OrderResponse {
     private Long id;
     private Long userId;
     private String email;
+    private BigDecimal totalPrice;
     private String status;
     private String statusDisplayName;
-    private BigDecimal totalPrice;
-    private Integer totalItems;
+    private Integer itemCount;
     private List<OrderItemResponse> items;
+    private String cancellationReason;
+    private String cancelledBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime paidAt;
     private LocalDateTime cancelledAt;
-    private String cancellationReason;
 }

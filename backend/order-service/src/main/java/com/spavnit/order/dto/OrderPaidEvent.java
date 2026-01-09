@@ -6,13 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DebitRequest {
-    private BigDecimal amount;
-    private String description;
+public class OrderPaidEvent {
     private Long orderId;
+    private Long userId;
+    private String email;
+    private BigDecimal totalPrice;
+    private List<ProductLinkInfo> productLinks;
 }

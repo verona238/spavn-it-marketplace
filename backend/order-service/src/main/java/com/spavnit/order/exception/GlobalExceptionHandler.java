@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Глобальный обработчик исключений
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -42,24 +39,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(PaymentFailedException.class)
-    public ResponseEntity<ErrorResponse> handlePaymentFailed(PaymentFailedException ex) {
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Payment Failed")
-                .message(ex.getMessage())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
     @ExceptionHandler(InvalidOrderStatusException.class)
     public ResponseEntity<ErrorResponse> handleInvalidOrderStatus(InvalidOrderStatusException ex) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Invalid Order Status")
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentFailed(PaymentFailedException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Payment Failed")
                 .message(ex.getMessage())
                 .build();
 
@@ -97,6 +94,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(error);
     }
+
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {

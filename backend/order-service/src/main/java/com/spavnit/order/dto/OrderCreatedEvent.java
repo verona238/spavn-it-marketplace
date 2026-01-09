@@ -6,12 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-/**
- * Событие создания заказа для Notification Service
- * Отправляется после успешной оплаты для рассылки ссылок на товары
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,5 +16,5 @@ public class OrderCreatedEvent {
     private Long userId;
     private String email;
     private BigDecimal totalPrice;
-    private List<ProductLinkDto> products;
+    private Integer itemCount;
 }

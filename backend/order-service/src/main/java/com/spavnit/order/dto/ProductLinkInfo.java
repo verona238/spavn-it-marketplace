@@ -5,14 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DebitRequest {
-    private BigDecimal amount;
-    private String description;
-    private Long orderId;
+public class ProductLinkInfo {
+    private String productName;
+    private String downloadLink;
 }

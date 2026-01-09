@@ -1,14 +1,12 @@
 package com.spavnit.order.client;
 
+import com.spavnit.order.dto.ProductLinkDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * REST клиент для взаимодействия с Catalog Service
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -23,16 +21,23 @@ public class CatalogClient {
      * Получить ссылку на скачивание товара
      */
     public String getDownloadLink(Long productId) {
-        log.info("Запрос ссылки на скачивание товара {} из Catalog Service", productId);
+        log.info("Получение ссылки на скачивание товара {}", productId);
 
         try {
-            String url = catalogUrl + "/internal/products/" + productId + "/download-link";
-            String downloadLink = restTemplate.getForObject(url, String.class);
+            String url = catalogUrl + "/products/" + productId + "/download-link";
 
-            log.info("Ссылка на скачивание получена для товара {}", productId);
-            return downloadLink;
+            ProductLinkDto response = restTemplate.getForObject(url, ProductLinkDto.class);
+
+            if (response != null && response.getDownloadLink() != null) {
+                log.info("Ссылка получена для товара {}", productId);
+                return response.getDownloadLink();
+            }
+
+            log.warn("Ссылка не найдена для товара {}", productId);
+            return null;
+
         } catch (Exception e) {
-            log.error("Ошибка при получении ссылки на скачивание для товара {}: {}", productId, e.getMessage());
+            log.error("Ошибка при получении ссылки для товара {}: {}", productId, e.getMessage());
             return null;
         }
     }

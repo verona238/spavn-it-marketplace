@@ -11,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * REST клиент для взаимодействия с Cart Service
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -28,11 +25,12 @@ public class CartClient {
      * Получить корзину пользователя
      */
     public CartResponse getCart(String token) {
-        log.info("Запрос корзины из Cart Service");
+        log.info("Получение корзины пользователя");
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
+
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             ResponseEntity<CartResponse> response = restTemplate.exchange(
@@ -42,8 +40,9 @@ public class CartClient {
                     CartResponse.class
             );
 
-            log.info("Корзина получена из Cart Service");
+            log.info("Корзина получена");
             return response.getBody();
+
         } catch (Exception e) {
             log.error("Ошибка при получении корзины: {}", e.getMessage());
             throw new RuntimeException("Не удалось получить корзину");
@@ -51,26 +50,29 @@ public class CartClient {
     }
 
     /**
-     * Очистить корзину пользователя
+     * Очистить корзину после создания заказа
      */
     public void clearCart(String token) {
-        log.info("Очистка корзины через Cart Service");
+        log.info("Очистка корзины");
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + token);
+
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             restTemplate.exchange(
-                    cartUrl,
+                    cartUrl + "/clear",
                     HttpMethod.DELETE,
                     entity,
                     Void.class
             );
 
             log.info("Корзина очищена");
+
         } catch (Exception e) {
             log.error("Ошибка при очистке корзины: {}", e.getMessage());
+            // Не бросаем исключение, так как заказ уже создан
         }
     }
 }

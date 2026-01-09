@@ -11,8 +11,12 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DebitRequest {
-    private BigDecimal amount;
-    private String description;
+public class OrderCancelledEvent {
     private Long orderId;
+    private Long userId;
+    private String email;
+    private String cancellationReason;
+    private String cancelledBy;
+    private boolean refunded;
+    private BigDecimal refundedAmount;
 }
