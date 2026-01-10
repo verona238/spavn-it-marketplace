@@ -8,8 +8,11 @@ C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\dto\RoleChangedEvent.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\exception\AuthException.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\config\SecurityConfig.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\exception\UserAlreadyExistsException.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\service\UserEventPublisher.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\dto\LoginResponse.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\dto\LoginRequest.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\dto\RegisterResponse.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\repository\UserRepository.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\service\AuthService.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\config\RabbitMQConfig.java
@@ -20,6 +23,7 @@ C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\dto\RegisterRequest.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\exception\ErrorResponse.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\dto\UserDeletedEvent.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\exception\InvalidCredentialsException.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\controller\AuthController.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\service\UserUpdateListener.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\auth-service\src\main\java\com\spavnit\auth\model\Role.java

@@ -1,11 +1,11 @@
 package com.spavnit.notification.dto;
 
-/**
- * Типы email уведомлений
- */
 public enum EmailType {
-    TWO_FACTOR_CODE,
-    WELCOME,
+    REGISTRATION,
+    TWO_FACTOR_AUTH,
     PASSWORD_RESET,
-    ORDER_CONFIRMATION
+    ORDER_CONFIRMATION,
+    ORDER_PAID,
+    ORDER_CANCELLED,
+    GENERAL
 }

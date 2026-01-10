@@ -1,26 +1,29 @@
 package com.spavnit.auth.service;
 
-import com.spavnit.auth.config.RabbitMQConfig;
 import com.spavnit.auth.dto.*;
-import com.spavnit.auth.exception.AuthException;
+import com.spavnit.auth.exception.InvalidCredentialsException;
+import com.spavnit.auth.exception.UserAlreadyExistsException;
 import com.spavnit.auth.model.Role;
 import com.spavnit.auth.model.User;
 import com.spavnit.auth.repository.UserRepository;
-import com.spavnit.auth.security.JwtUtil;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
- * Сервис авторизации и аутентификации
- * Основная бизнес-логика Auth Service
+ * Сервис для обработки аутентификации и авторизации
  */
 @Service
 @RequiredArgsConstructor
@@ -29,230 +32,221 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
     private final RabbitTemplate rabbitTemplate;
-    private final UserEventPublisher userEventPublisher;
 
-    @Value("${two-factor.code-expiration}")
-    private int codeExpirationSeconds;
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
-    @Value("${two-factor.code-length}")
-    private int codeLength;
+    private static final long EXPIRATION_TIME = 86400000; // 24 часа
+    private static final int CODE_EXPIRATION_MINUTES = 5;
 
     /**
      * Регистрация нового пользователя
-     * Требование: "Регистрация пользователей в системе должна быть реализована только по электронной почте"
      */
-    @Transactional
-    public AuthResponse register(RegisterRequest request) {
-        log.info("Попытка регистрации пользователя: {}", request.getEmail());
+    public RegisterResponse register(RegisterRequest request) {
+        log.info("Регистрация нового пользователя: {}", request.getEmail());
 
-        // Проверяем, существует ли уже пользователь
+        // Проверка существования пользователя
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AuthException("Пользователь с таким email уже существует");
+            throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
         }
 
-        // Создаем нового пользователя
+        // Создание нового пользователя
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.CLIENT) // По умолчанию все новые пользователи - клиенты
+                .role(Role.CLIENT)
                 .isActive(true)
                 .isEmailVerified(false)
                 .twoFactorEnabled(false)
                 .build();
 
-        User savedUser = userRepository.save(user);
-        log.info("Пользователь успешно зарегистрирован: {}", savedUser.getEmail());
+        user = userRepository.save(user);
 
-        userEventPublisher.publishUserCreated(savedUser);
+        log.info("Пользователь {} успешно зарегистрирован", user.getEmail());
 
-        // Отправляем приветственное письмо
-        sendWelcomeEmail(savedUser.getEmail());
+        // Отправка приветственного письма
+        sendWelcomeEmail(user);
 
-        // Генерируем токены
-        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole().name());
-        String refreshToken = jwtUtil.generateRefreshToken(savedUser.getEmail());
-
-        return AuthResponse.builder()
-                .token(token)
-                .refreshToken(refreshToken)
-                .email(savedUser.getEmail())
-                .role(savedUser.getRole().name())
-                .requiresTwoFactor(false)
+        return RegisterResponse.builder()
+                .email(user.getEmail())
+                .role(user.getRole().name())
                 .message("Регистрация успешна")
                 .build();
     }
 
     /**
-     * Вход в систему
-     * Требование: "В системе должна быть реализована двухфакторная аутентификация по электронной почте
-     * для пользователей с ролью Администратор"
+     * Вход пользователя с 2FA для администраторов
      */
-    @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         log.info("Попытка входа пользователя: {}", request.getEmail());
 
-        // Находим пользователя
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AuthException("Неверный email или пароль"));
+                .orElseThrow(() -> new InvalidCredentialsException("Неверный email или пароль"));
 
-        // Проверяем пароль
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AuthException("Неверный email или пароль");
+            throw new InvalidCredentialsException("Неверный email или пароль");
         }
 
-        // КРИТИЧЕСКАЯ ПРОВЕРКА: Деактивированные пользователи не могут войти
         if (!user.isActive()) {
-            log.warn("Попытка входа деактивированного пользователя: {}", user.getEmail());
-            throw new AuthException("Ваш аккаунт был деактивирован. Обратитесь к администратору.");
+            throw new InvalidCredentialsException("Аккаунт заблокирован");
         }
 
-        // Если пользователь - администратор, требуем 2FA
+        // Если пользователь - администратор, требуется 2FA
         if (user.getRole() == Role.ADMIN) {
             log.info("Пользователь {} является администратором, требуется 2FA", user.getEmail());
 
-            // Генерируем код 2FA
+            // Генерация и сохранение 2FA кода
             String code = generateTwoFactorCode();
-
-            // Сохраняем код и время истечения
-            user.setTwoFactorCode(passwordEncoder.encode(code));
-            user.setTwoFactorExpiry(LocalDateTime.now().plusSeconds(codeExpirationSeconds));
+            user.setTwoFactorCode(code);
+            user.setTwoFactorExpiry(LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES));
             userRepository.save(user);
 
-            // Отправляем код на email
-            sendTwoFactorCode(user.getEmail(), code);
+            // Отправка 2FA кода на email
+            send2FACode(user, code);
 
-            return AuthResponse.builder()
-                    .requiresTwoFactor(true)
+            log.info("Код 2FA отправлен на email: {}", user.getEmail());
+
+
+
+            return LoginResponse.builder()
                     .email(user.getEmail())
-                    .message("Код двухфакторной аутентификации отправлен на email")
+                    .role(user.getRole().name())
+                    .requires2FA(true)
+                    .message("Для входа требуется подтверждение 2FA. Код отправлен на email.")
                     .build();
         }
 
-        // Для обычных пользователей сразу выдаем токены
-        log.info("Пользователь {} успешно авторизован", user.getEmail());
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        // Для обычных пользователей сразу выдаём токен
+        String token = generateToken(user);
 
-        return AuthResponse.builder()
+        log.info("Пользователь {} успешно вошёл в систему", user.getEmail());
+
+        return LoginResponse.builder()
                 .token(token)
-                .refreshToken(refreshToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())
-                .requiresTwoFactor(false)
-                .message("Вход выполнен успешно")
+                .requires2FA(false)
                 .build();
     }
 
     /**
-     * Подтверждение 2FA кода
-     * Требование: "В системе должна быть реализована двухфакторная аутентификация по электронной почте"
+     * Подтверждение 2FA кода для администраторов
      */
-    @Transactional
-    public AuthResponse verifyTwoFactor(TwoFactorRequest request) {
+    public LoginResponse verify2FA(TwoFactorRequest request) {
         log.info("Проверка 2FA кода для пользователя: {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AuthException("Пользователь не найден"));
+                .orElseThrow(() -> new InvalidCredentialsException("Пользователь не найден"));
 
-        // ПРОВЕРКА: Деактивированные пользователи не могут пройти 2FA
-        if (!user.isActive()) {
-            log.warn("Попытка 2FA деактивированного пользователя: {}", user.getEmail());
-            throw new AuthException("Ваш аккаунт был деактивирован. Обратитесь к администратору.");
+        // Проверка кода
+        if (user.getTwoFactorCode() == null || !user.getTwoFactorCode().equals(request.getCode())) {
+            throw new InvalidCredentialsException("Неверный код подтверждения");
         }
 
-        // Проверяем, что код был отправлен
-        if (user.getTwoFactorCode() == null || user.getTwoFactorExpiry() == null) {
-            throw new AuthException("Код 2FA не был запрошен");
+        // Проверка срока действия кода
+        if (user.getTwoFactorExpiry() == null || LocalDateTime.now().isAfter(user.getTwoFactorExpiry())) {
+            throw new InvalidCredentialsException("Код подтверждения истёк");
         }
 
-        // Проверяем, не истек ли код
-        if (LocalDateTime.now().isAfter(user.getTwoFactorExpiry())) {
-            throw new AuthException("Код 2FA истек. Пожалуйста, войдите снова");
-        }
+        log.info("2FA код успешно подтверждён для пользователя: {}", user.getEmail());
 
-        // Проверяем правильность кода
-        if (!passwordEncoder.matches(request.getCode(), user.getTwoFactorCode())) {
-            throw new AuthException("Неверный код 2FA");
-        }
-
-        // Очищаем код 2FA
+        // Очистка 2FA данных
         user.setTwoFactorCode(null);
         user.setTwoFactorExpiry(null);
         userRepository.save(user);
 
-        log.info("2FA код успешно подтвержден для пользователя: {}", user.getEmail());
+        // Генерация JWT токена
+        String token = generateToken(user);
 
-        // Генерируем токены
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
-
-        return AuthResponse.builder()
+        return LoginResponse.builder()
                 .token(token)
-                .refreshToken(refreshToken)
                 .email(user.getEmail())
                 .role(user.getRole().name())
-                .requiresTwoFactor(false)
-                .message("Двухфакторная аутентификация пройдена успешно")
+                .requires2FA(false)
                 .build();
     }
 
     /**
-     * Генерация кода 2FA
+     * Генерация JWT токена с userId и role
+     */
+    private String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getRole().name());
+        claims.put("userId", user.getId());  // ВАЖНО: добавляем userId в токен!
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(user.getEmail())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSignKey())
+                .compact();
+    }
+
+    /**
+     * Получение ключа для подписи JWT
+     */
+    private SecretKey getSignKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
+    /**
+     * Генерация 6-значного кода для 2FA
      */
     private String generateTwoFactorCode() {
         Random random = new Random();
-        StringBuilder code = new StringBuilder();
-
-        for (int i = 0; i < codeLength; i++) {
-            code.append(random.nextInt(10));
-        }
-
-        return code.toString();
-    }
-
-
-    /**
-     * Отправка кода 2FA на email через RabbitMQ
-     */
-    private void sendTwoFactorCode(String email, String code) {
-        EmailEvent emailEvent = EmailEvent.builder()
-                .to(email)
-                .subject("Код двухфакторной аутентификации")
-                .body("Ваш код подтверждения: " + code + "\nКод действителен в течение "
-                        + (codeExpirationSeconds / 60) + " минут.")
-                .type(EmailType.TWO_FACTOR_CODE)
-                .build();
-
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.NOTIFICATION_EXCHANGE,
-                RabbitMQConfig.EMAIL_ROUTING_KEY,
-                emailEvent
-        );
-
-        log.info("Код 2FA отправлен на email: {}", email);
+        int code = 100000 + random.nextInt(900000);
+        return String.valueOf(code);
     }
 
     /**
      * Отправка приветственного письма
      */
-    private void sendWelcomeEmail(String email) {
-        EmailEvent emailEvent = EmailEvent.builder()
-                .to(email)
-                .subject("Добро пожаловать в SpavnIT!")
-                .body("Здравствуйте!\n\nСпасибо за регистрацию в интернет-магазине SpavnIT.\n\n"
-                        + "Теперь вы можете просматривать наш каталог и делать заказы.\n\n"
-                        + "С уважением,\nКоманда SpavnIT")
-                .type(EmailType.WELCOME)
-                .build();
+    private void sendWelcomeEmail(User user) {
+        try {
+            EmailEvent emailEvent = EmailEvent.builder()
+                    .to(user.getEmail())
+                    .subject("Добро пожаловать в SpavnIT!")
+                    .body("Здравствуйте!\n\n" +
+                            "Спасибо за регистрацию в SpavnIT Marketplace.\n\n" +
+                            "Ваш аккаунт успешно создан.\n\n" +
+                            "С уважением,\n" +
+                            "Команда SpavnIT")
+                    .type(EmailType.REGISTRATION)
+                    .build();
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.NOTIFICATION_EXCHANGE,
-                RabbitMQConfig.EMAIL_ROUTING_KEY,
-                emailEvent
-        );
+            rabbitTemplate.convertAndSend("notification.exchange", "email.send", emailEvent);
+            log.info("Приветственное письмо отправлено для {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Ошибка при отправке приветственного письма: {}", e.getMessage());
+        }
+    }
 
-        log.info("Приветственное письмо отправлено на: {}", email);
+
+
+    /**
+     * Отправка 2FA кода на email
+     */
+    private void send2FACode(User user, String code) {
+        try {
+            EmailEvent emailEvent = EmailEvent.builder()
+                    .to(user.getEmail())
+                    .subject("Код подтверждения для входа в SpavnIT")
+                    .body("Здравствуйте!\n\n" +
+                            "Ваш код подтверждения для входа в систему:\n\n" +
+                            code + "\n\n" +
+                            "Код действителен в течение " + CODE_EXPIRATION_MINUTES + " минут.\n\n" +
+                            "Если это были не вы, проигнорируйте это письмо.\n\n" +
+                            "С уважением,\n" +
+                            "Команда SpavnIT")
+                    .type(EmailType.TWO_FACTOR_AUTH)
+                    .build();
+
+            rabbitTemplate.convertAndSend("notification.exchange", "email.send", emailEvent);
+            log.info("2FA код отправлен на email: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Ошибка при отправке 2FA кода: {}", e.getMessage());
+        }
     }
 }

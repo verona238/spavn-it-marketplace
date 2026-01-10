@@ -1,8 +1,14 @@
-C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\config\RabbitMQConfig.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\controller\HealthController.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\OrderCreatedEvent.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\service\EmailEventListener.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\service\OrderEventListener.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\EmailEvent.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\OrderCancelledEvent.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\ProductLinkInfo.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\EmailType.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\config\RabbitMQConfig.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\OrderPaidEvent.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\ProductLinkDto.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\NotificationServiceApplication.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\config\OpenAPIConfig.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\service\EmailService.java
-C:\Users\nazarovskaya.v\Documents\spavnit\backend\notification-service\src\main\java\com\spavnit\notification\dto\EmailType.java

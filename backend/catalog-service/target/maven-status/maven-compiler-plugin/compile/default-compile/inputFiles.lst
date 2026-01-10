@@ -11,9 +11,12 @@ C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\dto\CategoryInfo.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\model\Category.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\controller\CatalogController.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\service\ProductService.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\dto\ProductLinkDto.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\config\OpenAPIConfig.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\dto\ProductResponse.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\security\JwtAuthenticationFilter.java
+C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\controller\ProductController.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\service\CatalogService.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\CatalogServiceApplication.java
 C:\Users\nazarovskaya.v\Documents\spavnit\backend\catalog-service\src\main\java\com\spavnit\catalog\exception\ProductNotFoundException.java

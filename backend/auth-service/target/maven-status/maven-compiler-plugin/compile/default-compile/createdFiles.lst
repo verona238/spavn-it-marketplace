@@ -7,11 +7,15 @@ com\spavnit\auth\exception\ErrorResponse.class
 com\spavnit\auth\dto\EmailEvent$EmailEventBuilder.class
 com\spavnit\auth\dto\UserUpdatedEvent.class
 com\spavnit\auth\dto\UserCreatedEvent.class
+com\spavnit\auth\dto\LoginResponse$LoginResponseBuilder.class
+com\spavnit\auth\dto\RegisterResponse.class
+com\spavnit\auth\dto\LoginResponse.class
 com\spavnit\auth\model\Role.class
 com\spavnit\auth\exception\ErrorResponse$ErrorResponseBuilder.class
 com\spavnit\auth\dto\UserUpdatedEvent$UserUpdatedEventBuilder.class
 com\spavnit\auth\service\AuthService.class
 com\spavnit\auth\exception\AuthException.class
+com\spavnit\auth\exception\InvalidCredentialsException.class
 com\spavnit\auth\dto\EmailType.class
 com\spavnit\auth\AuthServiceApplication.class
 com\spavnit\auth\dto\TwoFactorRequest.class
@@ -21,7 +25,9 @@ com\spavnit\auth\config\SecurityConfig.class
 com\spavnit\auth\dto\RegisterRequest.class
 com\spavnit\auth\service\UserEventPublisher.class
 com\spavnit\auth\dto\UserDeletedEvent.class
+com\spavnit\auth\exception\UserAlreadyExistsException.class
 com\spavnit\auth\dto\AuthResponse.class
+com\spavnit\auth\dto\RegisterResponse$RegisterResponseBuilder.class
 com\spavnit\auth\dto\RoleChangedEvent.class
 com\spavnit\auth\controller\AuthController.class
 com\spavnit\auth\security\JwtUtil.class

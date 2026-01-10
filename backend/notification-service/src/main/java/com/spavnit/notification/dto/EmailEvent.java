@@ -5,10 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO для событий email из RabbitMQ
- * Должно совпадать с EmailEvent в Auth Service
- */
 @Data
 @Builder
 @NoArgsConstructor

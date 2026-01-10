@@ -7,63 +7,54 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST контроллер для авторизации и аутентификации
- * Все эндпоинты доступны по адресу: http://localhost:8081/api/auth
- */
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Authentication", description = "API для авторизации и регистрации")
+@Tag(name = "Authentication", description = "API для аутентификации и авторизации")
 public class AuthController {
 
     private final AuthService authService;
 
     /**
      * Регистрация нового пользователя
-     * POST /api/auth/register
      */
     @PostMapping("/register")
-    @Operation(summary = "Регистрация пользователя",
-            description = "Регистрация нового пользователя по email")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    @Operation(summary = "Регистрация", description = "Регистрация нового пользователя")
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
         log.info("POST /register - Регистрация пользователя: {}", request.getEmail());
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.ok(response);
+        RegisterResponse response = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Вход в систему
-     * POST /api/auth/login
      */
     @PostMapping("/login")
-    @Operation(summary = "Вход в систему",
-            description = "Авторизация пользователя. Для администраторов требуется 2FA")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    @Operation(summary = "Вход", description = "Вход в систему с опциональной 2FA для администраторов")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("POST /login - Вход пользователя: {}", request.getEmail());
-        AuthResponse response = authService.login(request);
+        LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
     /**
      * Подтверждение 2FA кода
-     * POST /api/auth/verify-2fa
      */
     @PostMapping("/verify-2fa")
-    @Operation(summary = "Подтверждение 2FA",
-            description = "Подтверждение кода двухфакторной аутентификации")
-    public ResponseEntity<AuthResponse> verifyTwoFactor(@Valid @RequestBody TwoFactorRequest request) {
+    @Operation(summary = "Подтверждение 2FA", description = "Подтверждение двухфакторной аутентификации")
+    public ResponseEntity<LoginResponse> verify2FA(@Valid @RequestBody TwoFactorRequest request) {
         log.info("POST /verify-2fa - Проверка 2FA для: {}", request.getEmail());
-        AuthResponse response = authService.verifyTwoFactor(request);
+        LoginResponse response = authService.verify2FA(request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Health check эндпоинт
+     * Health check
      */
     @GetMapping("/health")
     @Operation(summary = "Health Check", description = "Проверка работоспособности сервиса")

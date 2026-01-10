@@ -72,15 +72,17 @@ public class CartController {
     }
 
     /**
-     * Очистка корзины
-     * DELETE /api/cart
+     * Очистить корзину
+     * DELETE /api/cart/clear
      */
-    @DeleteMapping
+    @DeleteMapping("/clear")
     @Operation(summary = "Очистить корзину",
             description = "Удаление всех товаров из корзины")
     public ResponseEntity<Void> clearCart(Authentication authentication) {
-        log.info("DELETE / - Очистка корзины пользователя: {}", authentication.getName());
+        log.info("DELETE /clear - Очистка корзины для пользователя: {}", authentication.getName());
+
         cartService.clearCart(authentication.getName());
+
         return ResponseEntity.noContent().build();
     }
 
