@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # База данных для Auth Service
   postgres-auth:
