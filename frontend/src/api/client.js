@@ -1,86 +1,51 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 class ApiClient {
-  async get(endpoint) {
+  async request(endpoint, options = {}) {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'GET',
+      const url = `${API_BASE_URL}${endpoint}`;
+      console.log(`${options.method || 'GET'} запрос на:`, url);
+
+      const response = await fetch(url, {
+        ...options,
         headers: {
           'Content-Type': 'application/json',
+          ...options.headers,
         },
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       return await response.json();
     } catch (error) {
-      console.error('GET request failed:', error);
+      console.error('Request failed:', error);
       throw error;
     }
+  }
+
+  async get(endpoint) {
+    return this.request(endpoint, { method: 'GET' });
   }
 
   async post(endpoint, data) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('POST request failed:', error);
-      throw error;
-    }
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async put(endpoint, data) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('PUT request failed:', error);
-      throw error;
-    }
+    return this.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async delete(endpoint) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('DELETE request failed:', error);
-      throw error;
-    }
+    return this.request(endpoint, { method: 'DELETE' });
   }
 }
 

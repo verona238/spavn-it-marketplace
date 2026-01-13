@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/catalog")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Catalog", description = "API для работы с каталогом товаров")

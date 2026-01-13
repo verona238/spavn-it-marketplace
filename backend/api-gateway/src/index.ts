@@ -7,7 +7,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Получаем URL сервисов из .env
+// URL сервисов
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8081';
 const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://localhost:8085';
 const CART_SERVICE_URL = process.env.CART_SERVICE_URL || 'http://localhost:8086';
@@ -53,7 +53,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Health check
-app.get('/api/health', (req: Request, res: Response) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
     message: 'API Gateway работает!',
@@ -62,9 +62,9 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // Helper function для проксирования
-async function proxyRequest(serviceUrl: string, servicePath: string, req: Request, res: Response) {
+async function proxyRequest(serviceUrl: string, path: string, req: Request, res: Response) {
   try {
-    const url = `${serviceUrl}${servicePath}`;
+    const url = `${serviceUrl}${path}`;
     console.log(`Proxying ${req.method} to: ${url}`);
 
     const response = await fetch(url, {
@@ -95,53 +95,45 @@ async function proxyRequest(serviceUrl: string, servicePath: string, req: Reques
   }
 }
 
-// Auth Service (8081)
-app.all('/api/auth*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/auth', '/auth');
-  proxyRequest(AUTH_SERVICE_URL, path, req, res);
+// Auth Service (8081) - /api/auth/* -> http://localhost:8081/api/auth/*
+app.all('/api/auth/*', (req: Request, res: Response) => {
+  proxyRequest(AUTH_SERVICE_URL, req.path, req, res);
 });
 
-// Notification Service (8082)
-app.all('/api/notifications*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/notifications', '/notifications');
-  proxyRequest(NOTIFICATION_SERVICE_URL, path, req, res);
+// Notification Service (8082) - /api/notifications/* -> http://localhost:8082/api/notifications/*
+app.all('/api/notifications/*', (req: Request, res: Response) => {
+  proxyRequest(NOTIFICATION_SERVICE_URL, req.path, req, res);
 });
 
-// User Service (8083)
-app.all('/api/users*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/users', '/users');
-  proxyRequest(USER_SERVICE_URL, path, req, res);
+// User Service (8083) - /api/users/* -> http://localhost:8083/api/users/*
+app.all('/api/users/*', (req: Request, res: Response) => {
+  proxyRequest(USER_SERVICE_URL, req.path, req, res);
 });
 
-// Balance Service (8084)
-app.all('/api/balance*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/balance', '/balance');
-  proxyRequest(BALANCE_SERVICE_URL, path, req, res);
+// Balance Service (8084) - /api/balance/* -> http://localhost:8084/api/balance/*
+app.all('/api/balance/*', (req: Request, res: Response) => {
+  proxyRequest(BALANCE_SERVICE_URL, req.path, req, res);
 });
 
-
-
-// Catalog Service / Products (8085)
-app.all('/api/products*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/products', '/products');
-  proxyRequest(CATALOG_SERVICE_URL, path, req, res);
-});
-
+// Catalog Service (8085) - /api/catalog/* -> http://localhost:8085/api/catalog/*
 app.all('/api/catalog*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/catalog', '/catalog');
-  proxyRequest(CATALOG_SERVICE_URL, path, req, res);
+  proxyRequest(CATALOG_SERVICE_URL, req.path, req, res);
 });
 
-// Cart Service (8086)
-app.all('/api/cart*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/cart', '/cart');
-  proxyRequest(CART_SERVICE_URL, path, req, res);
+// Алиас для продуктов: /api/products/* -> http://localhost:8085/api/catalog/*
+app.all('/api/products*', (req: Request, res: Response) => {
+  const catalogPath = req.path.replace('/products', '/catalog');
+  proxyRequest(CATALOG_SERVICE_URL, catalogPath, req, res);
 });
 
-// Order Service (8087)
-app.all('/api/orders*', (req: Request, res: Response) => {
-  const path = req.path.replace('/api/orders', '/orders');
-  proxyRequest(ORDER_SERVICE_URL, path, req, res);
+// Cart Service (8086) - /api/cart/* -> http://localhost:8086/api/cart/*
+app.all('/api/cart/*', (req: Request, res: Response) => {
+  proxyRequest(CART_SERVICE_URL, req.path, req, res);
+});
+
+// Order Service (8087) - /api/orders/* -> http://localhost:8087/api/orders/*
+app.all('/api/orders/*', (req: Request, res: Response) => {
+  proxyRequest(ORDER_SERVICE_URL, req.path, req, res);
 });
 
 app.listen(PORT, () => {
@@ -154,13 +146,13 @@ app.listen(PORT, () => {
 🌍 Environment: ${process.env.NODE_ENV || 'development'}
 
 📡 Микросервисы:
-   🔐 Auth:          ${AUTH_SERVICE_URL}
-   🔔 Notification:  ${NOTIFICATION_SERVICE_URL}
-   👤 User:          ${USER_SERVICE_URL}
-   💰 Balance:       ${BALANCE_SERVICE_URL}
-   📦 Catalog:       ${CATALOG_SERVICE_URL}
-   🛒 Cart:          ${CART_SERVICE_URL}
-   📋 Order:         ${ORDER_SERVICE_URL}
+   🔐 Auth:          ${AUTH_SERVICE_URL}/api/auth
+   🔔 Notification:  ${NOTIFICATION_SERVICE_URL}/api/notifications
+   👤 User:          ${USER_SERVICE_URL}/api/users
+   💰 Balance:       ${BALANCE_SERVICE_URL}/api/balance
+   📦 Catalog:       ${CATALOG_SERVICE_URL}/api/products
+   🛒 Cart:          ${CART_SERVICE_URL}/api/cart
+   📋 Order:         ${ORDER_SERVICE_URL}/api/orders
 
 🌐 CORS разрешён для: ${allowedOrigins.join(', ')}
   `);
