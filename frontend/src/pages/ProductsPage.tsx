@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, AlertCircle, RefreshCw } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { ShoppingCart, AlertCircle, RefreshCw, Search } from 'lucide-react';
 import { catalogService } from '../services/catalogService';
 import ProductCard from '../components/features/ProductCard';
+import { getCategoryDisplayName } from '../constants/categories';
 
 interface Product {
   id: number;
@@ -9,17 +11,40 @@ interface Product {
   price: number;
   description?: string;
   image?: string;
+  category?: string;
 }
 
 export default function ProductsPage() {
+  const location = useLocation();
+
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
 
+  // Фильтры
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [categories, setCategories] = useState<string[]>([]);
+
   useEffect(() => {
     loadProducts();
   }, []);
+
+  // Устанавливаем категорию из navigation state
+  useEffect(() => {
+    if (location.state?.selectedCategory) {
+      console.log('Выбранная категория:', location.state.selectedCategory);
+      setSelectedCategory(location.state.selectedCategory);
+      // Очищаем state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    filterProducts();
+  }, [products, searchQuery, selectedCategory]);
 
   const loadProducts = async () => {
     try {
@@ -42,6 +67,12 @@ export default function ProductsPage() {
 
       console.log('Список товаров:', productsList);
       setProducts(productsList);
+
+      // Извлекаем уникальные категории (английские ключи)
+      const uniqueCategories = [...new Set(productsList.map((p: Product) => p.category).filter(Boolean))];
+      console.log('Доступные категории:', uniqueCategories);
+      setCategories(uniqueCategories as string[]);
+
     } catch (err: any) {
       console.error('Ошибка загрузки товаров:', err);
       setError(err.message || 'Не удалось загрузить товары');
@@ -50,14 +81,51 @@ export default function ProductsPage() {
     }
   };
 
+  const filterProducts = () => {
+    let filtered = [...products];
+
+    // Фильтр по поиску
+    if (searchQuery) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Фильтр по категории
+    if (selectedCategory !== 'all') {
+      console.log('Фильтрация по категории:', selectedCategory);
+      filtered = filtered.filter(product => {
+        console.log('Товар:', product.name, 'Категория:', product.category);
+        return product.category === selectedCategory;
+      });
+    }
+
+    console.log('Отфильтрованные товары:', filtered);
+    setFilteredProducts(filtered);
+  };
+
   const handleAddToCart = async (product: Product) => {
-    setAddingToCart(product.id);
+    try {
+      setAddingToCart(product.id);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+      const { cartService } = await import('../services/cartService');
+      await cartService.addToCart(product.id, 1);
 
-    console.log('Добавлен в корзину:', product);
-    alert(`${product.name} добавлен в корзину!`);
-    setAddingToCart(null);
+      console.log('Товар успешно добавлен в корзину:', product);
+      alert(`${product.name} добавлен в корзину!`);
+    } catch (error: any) {
+      console.error('Ошибка добавления в корзину:', error);
+
+
+      if (error.message.includes('авторизация')) {
+        alert('Пожалуйста, войдите в систему для добавления товаров в корзину');
+      } else {
+        alert(`Ошибка: ${error.message || 'Не удалось добавить товар в корзину'}`);
+      }
+    } finally {
+      setAddingToCart(null);
+    }
   };
 
   if (loading) {
@@ -95,28 +163,78 @@ export default function ProductsPage() {
   return (
     <div className="container py-8">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Каталог товаров</h1>
-          <p className="text-gray-600">Найдено товаров: {products.length}</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Каталог товаров</h1>
+        <p className="text-gray-600">Найдено товаров: {filteredProducts.length}</p>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Поиск по названию или описанию..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="lg:w-64">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="all">Все категории</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {getCategoryDisplayName(category)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Reset Button */}
+          {(searchQuery || selectedCategory !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+              }}
+              className="btn btn-secondary whitespace-nowrap"
+            >
+              Сбросить фильтры
+            </button>
+          )}
         </div>
       </div>
 
 
       {/* Products Grid */}
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 rounded-2xl">
           <ShoppingCart className="mx-auto text-gray-400 mb-4" size={64} />
           <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            Товары не найдены
+            {searchQuery || selectedCategory !== 'all'
+              ? 'Товары не найдены'
+              : 'Каталог пуст'}
           </h3>
           <p className="text-gray-500">
-            Попробуйте изменить фильтры или вернитесь позже
+            {searchQuery || selectedCategory !== 'all'
+              ? 'Попробуйте изменить фильтры или поисковый запрос'
+              : 'Товары появятся позже'}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}

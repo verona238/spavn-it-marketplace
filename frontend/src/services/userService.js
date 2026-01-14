@@ -1,27 +1,76 @@
 import { api } from '../api/client';
 
 export const userService = {
+  /**
+   * Получить текущего авторизованного пользователя
+   */
+  async getCurrentUser() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Необходима авторизация');
+    }
+
+    return api.request('/users/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+
   async getAllUsers() {
-    return api.get('/users');
+    const token = localStorage.getItem('token');
+    return api.request('/users', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
   },
 
   async getUserById(id) {
-    return api.get(`/users/${id}`);
+    const token = localStorage.getItem('token');
+    return api.request(`/users/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
   },
 
   async updateUser(id, userData) {
-    return api.put(`/users/${id}`, userData);
+    const token = localStorage.getItem('token');
+    return api.request(`/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(userData)
+    });
   },
 
   async deleteUser(id) {
-    return api.delete(`/users/${id}`);
+    const token = localStorage.getItem('token');
+    return api.request(`/users/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
   },
 
   async getUserProfile() {
-    return api.get('/users/profile');
+    return this.getCurrentUser();
   },
 
   async updateUserProfile(userData) {
-    return api.put('/users/profile', userData);
+    const token = localStorage.getItem('token');
+    return api.request('/users/profile', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(userData)
+    });
   }
 };
