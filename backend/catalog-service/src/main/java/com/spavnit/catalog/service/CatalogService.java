@@ -58,7 +58,7 @@ public class CatalogService {
         response.setPrice(product.getPrice());
         response.setCategory(product.getCategory().name());
         response.setCategoryDisplayName(product.getCategory().getDisplayName());
-        response.setImageUrl(product.getImageUrl());
+        response.setImage(product.getImage());
         response.setDownloadLink(product.getDownloadLink());
         response.setAvailable(product.isAvailable());
         response.setStockQuantity(product.getStockQuantity());

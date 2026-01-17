@@ -38,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Узнайте, как правильно задавать вопросы, просить помощь и строить отношения в команде.")
                         .price(new BigDecimal("15.00"))
                         .category(Category.LIFEHACKS)
-                        .imageUrl("https://example.com/images/nitakusya.jpg")
+                        .image("http://localhost:5173/images/products/1.jpg")
                         .downloadLink("https://drive.google.com/file/d/lifehack1")
                         .build(),
 
@@ -48,7 +48,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Как поддерживать лёгкую атмосферу, не теряя профессионализм.")
                         .price(new BigDecimal("12.00"))
                         .category(Category.LIFEHACKS)
-                        .imageUrl("https://example.com/images/humor.jpg")
+                        .image("https://example.com/images/humor.jpg")
                         .downloadLink("https://drive.google.com/file/d/lifehack2")
                         .build(),
 
@@ -58,7 +58,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Что делать, когда задача горит, а ты не понимаешь половину терминов.")
                         .price(new BigDecimal("18.00"))
                         .category(Category.LIFEHACKS)
-                        .imageUrl("https://example.com/images/sprint.jpg")
+                        .image("https://example.com/images/sprint.jpg")
                         .downloadLink("https://drive.google.com/file/d/lifehack3")
                         .build(),
 
@@ -69,7 +69,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Включает чек-лист коммуникации с HR и командой.")
                         .price(new BigDecimal("20.00"))
                         .category(Category.CHECKLISTS)
-                        .imageUrl("https://example.com/images/dev-checklist.jpg")
+                        .image("https://example.com/images/dev-checklist.jpg")
                         .downloadLink("https://drive.google.com/file/d/checklist1")
                         .build(),
 
@@ -80,7 +80,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Бонус: как закентиться с командой разработки.")
                         .price(new BigDecimal("20.00"))
                         .category(Category.CHECKLISTS)
-                        .imageUrl("https://example.com/images/qa-checklist.jpg")
+                        .image("https://example.com/images/qa-checklist.jpg")
                         .downloadLink("https://drive.google.com/file/d/checklist2")
                         .build(),
 
@@ -90,7 +90,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Как стать незаменимым связующим звеном команды.")
                         .price(new BigDecimal("20.00"))
                         .category(Category.CHECKLISTS)
-                        .imageUrl("https://example.com/images/analyst-checklist.jpg")
+                        .image("https://example.com/images/analyst-checklist.jpg")
                         .downloadLink("https://drive.google.com/file/d/checklist3")
                         .build(),
 
@@ -101,7 +101,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "В комплекте: карты, фишки, инструкция по психологическому давлению.")
                         .price(new BigDecimal("25.00"))
                         .category(Category.GAMES)
-                        .imageUrl("https://example.com/images/poker.jpg")
+                        .image("https://example.com/images/poker.jpg")
                         .downloadLink("https://drive.google.com/file/d/game1")
                         .build(),
 
@@ -111,7 +111,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Узнайте, кто из коллег саботирует проект!")
                         .price(new BigDecimal("22.00"))
                         .category(Category.GAMES)
-                        .imageUrl("https://example.com/images/mafia.jpg")
+                        .image("https://example.com/images/mafia.jpg")
                         .downloadLink("https://drive.google.com/file/d/game2")
                         .build(),
 
@@ -121,7 +121,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Стройте офисные империи и банкротьте конкурентов. Чистый капитализм!")
                         .price(new BigDecimal("30.00"))
                         .category(Category.GAMES)
-                        .imageUrl("https://example.com/images/monopoly.jpg")
+                        .image("https://example.com/images/monopoly.jpg")
                         .downloadLink("https://drive.google.com/file/d/game3")
                         .build(),
 
@@ -132,7 +132,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "ваш начальник с помощью GPT решает, кого повысить, а кого уволить.")
                         .price(new BigDecimal("35.00"))
                         .category(Category.AI_TOOLS)
-                        .imageUrl("https://example.com/images/chatgpt.jpg")
+                        .image("https://example.com/images/chatgpt.jpg")
                         .downloadLink("https://drive.google.com/file/d/ai1")
                         .build(),
 
@@ -144,7 +144,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "которую никто не читает, но все требуют.")
                         .price(new BigDecimal("35.00"))
                         .category(Category.AI_TOOLS)
-                        .imageUrl("https://example.com/images/claude.jpg")
+                        .image("https://example.com/images/claude.jpg")
                         .downloadLink("https://drive.google.com/file/d/ai2")
                         .build(),
 
@@ -154,7 +154,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "которые выглядят профессионально, даже если контент так себе.")
                         .price(new BigDecimal("40.00"))
                         .category(Category.AI_TOOLS)
-                        .imageUrl("https://example.com/images/midjourney.jpg")
+                        .image("https://example.com/images/midjourney.jpg")
                         .downloadLink("https://drive.google.com/file/d/ai3")
                         .build(),
 
@@ -165,7 +165,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "Научитесь паттернам, алгоритмам и главное - как продавать себя дороже.")
                         .price(new BigDecimal("50.00"))
                         .category(Category.COURSES)
-                        .imageUrl("https://example.com/images/junior-middle.jpg")
+                        .image("https://example.com/images/junior-middle.jpg")
                         .downloadLink("https://drive.google.com/file/d/course1")
                         .build(),
 
@@ -175,7 +175,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "правильное делегирование, ментворство и как выглядеть занятым на совещаниях.")
                         .price(new BigDecimal("65.00"))
                         .category(Category.COURSES)
-                        .imageUrl("https://example.com/images/middle-senior.jpg")
+                        .image("https://example.com/images/middle-senior.jpg")
                         .downloadLink("https://drive.google.com/file/d/course2")
                         .build(),
 
@@ -185,7 +185,7 @@ public class DataInitializer implements CommandLineRunner {
                                 "договориться о повышении и не сгореть в процессе. ИИ вам тут не помощник!")
                         .price(new BigDecimal("45.00"))
                         .category(Category.COURSES)
-                        .imageUrl("https://example.com/images/performance.jpg")
+                        .image("https://example.com/images/performance.jpg")
                         .downloadLink("https://drive.google.com/file/d/course3")
                         .build()
         );

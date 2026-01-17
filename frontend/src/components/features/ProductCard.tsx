@@ -26,17 +26,42 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
     return text.substring(0, maxLength).trim() + '...';
   };
 
-  // Модальное окно
+  // Получаем путь к изображению
+  const getImagePath = () => {
+    if (!product.image) return null;
+
+    if (product.image.startsWith('http')) {
+      return product.image;
+    }
+
+    if (product.image.startsWith('/')) {
+      return product.image;
+    }
+
+    return `/${product.image}`;
+  };
+
+  const imagePath = getImagePath();
+
+  // Модальное окно БЕЗ скролла
   const ProductModal = () => (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       onClick={() => setShowModal(false)}
     >
+      {/* ⭐️ Убрали overflow-y-auto, добавили фиксированную высоту */}
       <div
-        className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl max-w-2xl w-full"
+        style={{
+          maxHeight: '85vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden', // ⭐️ Важно! Убираем скролл
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-900">{product.name}</h2>
           <button
             onClick={() => setShowModal(false)}
@@ -46,17 +71,19 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
           </button>
         </div>
 
-        <div className="p-6">
-          {/* Image */}
-          <div className="bg-gray-100 rounded-lg mb-6 overflow-hidden">
-            {product.image ? (
+        {/* Content - убрали скролл */}
+        <div className="p-6 flex-1" style={{ overflow: 'hidden' }}>
+          {/* Image - меньше размер */}
+          <div className="bg-gray-100 rounded-lg mb-4 overflow-hidden">
+            {imagePath ? (
               <img
-                src={product.image}
+                src={imagePath}
                 alt={product.name}
-                className="w-full h-96 object-cover"
+                className="w-full object-cover"
+                style={{ height: '350px' }} // ⭐️ Фиксированная высота
               />
             ) : (
-              <div className="w-full h-96 flex items-center justify-center text-8xl">
+              <div className="w-full flex items-center justify-center text-6xl" style={{ height: '350px' }}>
                 📦
               </div>
             )}
@@ -64,44 +91,45 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
 
           {/* Category */}
           {product.category && (
-            <div className="mb-4">
+            <div className="mb-3">
               <span className="inline-block px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
                 {product.category}
               </span>
             </div>
           )}
 
-          {/* Description */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Описание</h3>
-            <p className="text-gray-700 leading-relaxed">
+          {/* Description - компактнее */}
+          <div className="mb-4">
+            <h3 className="text-base font-semibold text-gray-900 mb-1">Описание</h3>
+            <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
               {product.description || 'Описание отсутствует'}
             </p>
           </div>
+        </div>
 
-          {/* Price and Action */}
-          <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-            <span className="text-3xl font-bold text-blue-600">
-              {product.price} ₽
-            </span>
-            <button
-              onClick={() => {
-                onAddToCart(product);
-                setShowModal(false);
-              }}
-              disabled={loading}
-              className="btn btn-primary px-8"
-            >
-              {loading ? (
-                <div className="loading-spinner" />
-              ) : (
-                <>
-                  <ShoppingCart size={20} />
-                  Добавить в корзину
-                </>
-              )}
-            </button>
-          </div>
+
+        {/* Footer - прилипает к низу */}
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white">
+          <span className="text-3xl font-bold text-blue-600">
+            {product.price} ₽
+          </span>
+          <button
+            onClick={() => {
+              onAddToCart(product);
+              setShowModal(false);
+            }}
+            disabled={loading}
+            className="btn btn-primary px-8"
+          >
+            {loading ? (
+              <div className="loading-spinner" />
+            ) : (
+              <>
+                <ShoppingCart size={20} />
+                Добавить в корзину
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
@@ -109,15 +137,25 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
 
   return (
     <>
-      <div className="card card-hover h-full flex flex-col overflow-hidden">
-        {/* Image - кликабельна */}
+      {/* Карточка со скругленными краями */}
+      <div
+        className="card card-hover h-full flex flex-col"
+        style={{
+          borderRadius: '1rem',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Image */}
         <div
-          className="bg-gray-100 h-48 flex items-center justify-center overflow-hidden cursor-pointer"
+          className="bg-gray-100 h-48 flex items-center justify-center cursor-pointer"
           onClick={() => setShowModal(true)}
+          style={{
+            overflow: 'hidden',
+          }}
         >
-          {product.image ? (
+          {imagePath ? (
             <img
-              src={product.image}
+              src={imagePath}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
             />
@@ -125,7 +163,6 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
             <div className="text-6xl">📦</div>
           )}
         </div>
-
 
         {/* Content */}
         <div className="p-4 flex flex-col flex-1">
@@ -135,13 +172,11 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
           >
             {product.name}
           </h3>
-
           {product.description && (
             <p className="text-sm text-gray-600 mb-4 flex-1">
               {truncateDescription(product.description)}
             </p>
           )}
-
           {/* Category badge */}
           {product.category && (
             <div className="mb-3">
@@ -150,13 +185,11 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
               </span>
             </div>
           )}
-
           {/* Footer */}
           <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
             <span className="text-xl font-bold text-blue-600">
               {product.price} ₽
             </span>
-
             <button
               onClick={() => onAddToCart(product)}
               disabled={loading}
@@ -174,7 +207,6 @@ export default function ProductCard({ product, onAddToCart, loading = false }: P
           </div>
         </div>
       </div>
-
       {/* Modal */}
       {showModal && <ProductModal />}
     </>

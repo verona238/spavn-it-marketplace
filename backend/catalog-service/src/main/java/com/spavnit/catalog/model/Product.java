@@ -39,8 +39,8 @@ public class Product {
     @Column(nullable = false)
     private Category category;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "image")
+    private String image;
 
     @Column(name = "download_link")
     private String downloadLink; // Ссылка на товар после покупки

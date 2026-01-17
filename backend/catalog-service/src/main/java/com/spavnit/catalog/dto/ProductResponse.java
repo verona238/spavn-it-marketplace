@@ -13,7 +13,7 @@ public class ProductResponse {
     private BigDecimal price;
     private String category;
     private String categoryDisplayName;
-    private String imageUrl;
+    private String image;
     private String downloadLink;
     private boolean available;
     private Integer stockQuantity;

@@ -187,19 +187,41 @@ export default function ProductsPage() {
 
           {/* Category Filter */}
           <div className="lg:w-64">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="all">Все категории</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {getCategoryDisplayName(category)}
-                </option>
-              ))}
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                style={{
+                  paddingLeft: '1rem',
+                  paddingRight: '3rem',
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'none',
+                }}
+              >
+                <option value="all">Все категории</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {getCategoryDisplayName(category)}
+                  </option>
+                ))}
+              </select>
+              <div style={{
+                position: 'absolute',
+                right: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none',
+                color: '#6b7280',
+              }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
           </div>
+
 
           {/* Reset Button */}
           {(searchQuery || selectedCategory !== 'all') && (
@@ -215,7 +237,6 @@ export default function ProductsPage() {
           )}
         </div>
       </div>
-
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (

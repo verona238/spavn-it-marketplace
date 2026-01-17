@@ -26,7 +26,7 @@ public class UpdateProductRequest {
 
     private String category;
 
-    private String imageUrl;
+    private String image;
 
     private String downloadLink;
 
